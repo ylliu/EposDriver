@@ -168,7 +168,7 @@ int EposDriver::DemoStopCurrentMode()
 
 	if (0 == VCS_SetDisableState(g_pKeyHandle, g_usNodeId, &p_pErrorCode)){
 		LogError("VCS_SetDisableState", lResult, p_pErrorCode);
-		lResult == MMC_FAILED;
+		lResult = MMC_FAILED;
 	}
 	return lResult;
 }
