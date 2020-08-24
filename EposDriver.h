@@ -43,7 +43,7 @@ private:
 	const int g_baudrate = 1000000;
 	string g_portName = "";  //from OpenDevice 
 	const string g_programName = "EposDemoDriver";
-	unsigned int* p_pErrorCode;
+	unsigned int p_pErrorCode;
 	void* g_pKeyHandle = 0;
 	unsigned short g_usNodeId = 1;
 };

@@ -34,13 +34,13 @@ int EposDriver::InitDevice()
 	int lResult = MMC_FAILED;
 	if ((lResult = OpenDevice()) != MMC_SUCCESS)
 	{
-		LogError("OpenDevice", lResult, *p_pErrorCode);
+		LogError("OpenDevice", lResult, p_pErrorCode);
 		return lResult;
 	}
 
-	if ((lResult = CheckFaultState(p_pErrorCode)) != MMC_SUCCESS)
+	if ((lResult = CheckFaultState(&p_pErrorCode)) != MMC_SUCCESS)
 	{
-		LogError("PrepareDemo", lResult, *p_pErrorCode);
+		LogError("PrepareDemo", lResult, p_pErrorCode);
 		return lResult;
 	}
 	return lResult;
@@ -54,19 +54,18 @@ int EposDriver::DemoProfilePositionMode(long target_position)
 	msg << "set profile position mode, node = " << g_usNodeId;
 	LogInfo(msg.str());
 
-	if (VCS_ActivateProfilePositionMode(g_pKeyHandle, g_usNodeId, p_pErrorCode) == 0)
+	if (VCS_ActivateProfilePositionMode(g_pKeyHandle, g_usNodeId, &p_pErrorCode) == 0)
 	{
-		LogError("VCS_ActivateProfilePositionMode", lResult, *p_pErrorCode);
+		LogError("VCS_ActivateProfilePositionMode", lResult, p_pErrorCode);
 		lResult = MMC_FAILED;
 		return lResult;
 	}
-	
 	msg << "move to position = " << target_position << ", node = " << g_usNodeId;
 	LogInfo(msg.str());
 
-	if (VCS_MoveToPosition(g_pKeyHandle, g_usNodeId, target_position, 0, 1, p_pErrorCode) == 0)
+	if (VCS_MoveToPosition(g_pKeyHandle, g_usNodeId, target_position, 0, 1, &p_pErrorCode) == 0)
 	{
-		LogError("VCS_MoveToPosition", lResult, *p_pErrorCode);
+		LogError("VCS_MoveToPosition", lResult, p_pErrorCode);
 		lResult = MMC_FAILED;
 	}
 	sleep(1);
@@ -75,9 +74,9 @@ int EposDriver::DemoProfilePositionMode(long target_position)
 	{
 		LogInfo("halt position movement");
 
-		if (VCS_HaltPositionMovement(g_pKeyHandle, g_usNodeId, p_pErrorCode) == 0)
+		if (VCS_HaltPositionMovement(g_pKeyHandle, g_usNodeId, &p_pErrorCode) == 0)
 		{
-			LogError("VCS_HaltPositionMovement", lResult, *p_pErrorCode);
+			LogError("VCS_HaltPositionMovement", lResult, p_pErrorCode);
 			lResult = MMC_FAILED;
 		}
 	}
@@ -93,9 +92,9 @@ int EposDriver::DemoProfileVelocityMode(long target_velocity)
 
 	LogInfo(msg.str());
 
-	if (VCS_ActivateProfileVelocityMode(g_pKeyHandle, g_usNodeId, p_pErrorCode) == 0)
+	if (VCS_ActivateProfileVelocityMode(g_pKeyHandle, g_usNodeId, &p_pErrorCode) == 0)
 	{
-		LogError("VCS_ActivateProfileVelocityMode", lResult, *p_pErrorCode);
+		LogError("VCS_ActivateProfileVelocityMode", lResult, p_pErrorCode);
 		lResult = MMC_FAILED;
 	}
 	else
@@ -104,10 +103,10 @@ int EposDriver::DemoProfileVelocityMode(long target_velocity)
 		msg << "move with target velocity = " << target_velocity << " rpm, node = " << g_usNodeId;
 		LogInfo(msg.str());
 
-		if (VCS_MoveWithVelocity(g_pKeyHandle, g_usNodeId, target_velocity, p_pErrorCode) == 0)
+		if (VCS_MoveWithVelocity(g_pKeyHandle, g_usNodeId, target_velocity, &p_pErrorCode) == 0)
 		{
 			lResult = MMC_FAILED;
-			LogError("VCS_MoveWithVelocity", lResult, *p_pErrorCode);
+			LogError("VCS_MoveWithVelocity", lResult, p_pErrorCode);
 		}
 
 	}
@@ -119,10 +118,10 @@ int EposDriver::DemoStopVelocityMode()
 	int lResult = MMC_SUCCESS;
 	LogInfo("halt velocity movement");
 
-	if (VCS_HaltVelocityMovement(g_pKeyHandle, g_usNodeId, p_pErrorCode) == 0)
+	if (VCS_HaltVelocityMovement(g_pKeyHandle, g_usNodeId, &p_pErrorCode) == 0)
 	{
 		lResult = MMC_FAILED;
-		LogError("VCS_HaltVelocityMovement", lResult, *p_pErrorCode);
+		LogError("VCS_HaltVelocityMovement", lResult, p_pErrorCode);
 	}
 	return lResult;
 }
@@ -135,27 +134,27 @@ int EposDriver::DemoCurrentMode(int max_speed,int current)
 	msg << "set current mode, node = " << g_usNodeId;
 
 	LogInfo(msg.str());
-	if (VCS_ActivateCurrentMode(g_pKeyHandle, g_usNodeId, p_pErrorCode) == 0)
+	if (VCS_ActivateCurrentMode(g_pKeyHandle, g_usNodeId, &p_pErrorCode) == 0)
 	{
-		LogError("VCS_ActivateProfileCurrentMode", lResult, *p_pErrorCode);
+		LogError("VCS_ActivateProfileCurrentMode", lResult, p_pErrorCode);
 		lResult = MMC_FAILED;
 	}
 	else
 	{
 		unsigned int written_byte = 0;
-		if (0 == VCS_SetObject(g_pKeyHandle, g_usNodeId, 0x6410, 0x04, &max_speed, 1, &written_byte, p_pErrorCode))
+		if (0 == VCS_SetObject(g_pKeyHandle, g_usNodeId, 0x6410, 0x04, &max_speed, 1, &written_byte, &p_pErrorCode))
 		{
 			std::cout << "set max_speed failed." << g_usNodeId << std::endl;
 			return false;
 		}
 		std::cout << "set max_speed success,max_speed:" << max_speed << "written_byte:" << written_byte << std::endl;
-		if (0 == VCS_SetEnableState(g_pKeyHandle, g_usNodeId, p_pErrorCode)){
+		if (0 == VCS_SetEnableState(g_pKeyHandle, g_usNodeId, &p_pErrorCode)){
 			std::cout << "set enable failed." << g_usNodeId << std::endl;
 			return false;
 		}
-		if (0 == VCS_SetCurrentMust(g_pKeyHandle, g_usNodeId, current, p_pErrorCode))
+		if (0 == VCS_SetCurrentMust(g_pKeyHandle, g_usNodeId, current, &p_pErrorCode))
 		{
-			LogError("VCS_SetCurrentMust", lResult, *p_pErrorCode);
+			LogError("VCS_SetCurrentMust", lResult, p_pErrorCode);
 			lResult = MMC_FAILED;
 		}
 	}
@@ -167,9 +166,9 @@ int EposDriver::DemoStopCurrentMode()
 {
 	int lResult = MMC_SUCCESS;
 
-	if (0 == VCS_SetDisableState(g_pKeyHandle, g_usNodeId, p_pErrorCode)){
-		LogError("VCS_SetDisableState", lResult, *p_pErrorCode);
-		lResult = MMC_FAILED;
+	if (0 == VCS_SetDisableState(g_pKeyHandle, g_usNodeId, &p_pErrorCode)){
+		LogError("VCS_SetDisableState", lResult, p_pErrorCode);
+		lResult == MMC_FAILED;
 	}
 	return lResult;
 }
@@ -177,8 +176,8 @@ int EposDriver::DemoStopCurrentMode()
 int EposDriver::GetAnalogData(int input_number, unsigned short& analog_value)
 {
 	int lResult = MMC_SUCCESS;
-	if (0 == VCS_GetAnalogInput(g_pKeyHandle, g_usNodeId, input_number,&analog_value,p_pErrorCode)){
-		LogError("GetAnalogData", lResult, *p_pErrorCode);
+	if (0 == VCS_GetAnalogInput(g_pKeyHandle, g_usNodeId, input_number,&analog_value,&p_pErrorCode)){
+		LogError("GetAnalogData", lResult, p_pErrorCode);
 		lResult = MMC_FAILED;
 	}
 	return lResult;
@@ -188,8 +187,8 @@ int EposDriver::GetAnalogData(int input_number, unsigned short& analog_value)
 int EposDriver::GetDigitalInput(int input_number, unsigned short& digital_value)
 {
 	int lResult = MMC_SUCCESS;
-	if (0 == VCS_GetAllDigitalInputs(g_pKeyHandle, g_usNodeId, &digital_value, p_pErrorCode)){
-		LogError("GetDigitalData", lResult, *p_pErrorCode);
+	if (0 == VCS_GetAllDigitalInputs(g_pKeyHandle, g_usNodeId, &digital_value, &p_pErrorCode)){
+		LogError("GetDigitalData", lResult, p_pErrorCode);
 		lResult = MMC_FAILED;
 	}
 	digital_value = digital_value & (0x0001 << input_number);
@@ -211,18 +210,18 @@ int EposDriver::OpenDevice()
 	strcpy(pPortName, g_portName.c_str());
 
 	LogInfo("Open device...");
-	g_pKeyHandle = VCS_OpenDevice(pDeviceName, pProtocolStackName, pInterfaceName, pPortName, p_pErrorCode);
+	g_pKeyHandle = VCS_OpenDevice(pDeviceName, pProtocolStackName, pInterfaceName, pPortName, &p_pErrorCode);
 
-	if (g_pKeyHandle != 0 && *p_pErrorCode == 0)
+	if (g_pKeyHandle != 0 && p_pErrorCode == 0)
 	{
 		unsigned int lBaudrate = 0;
 		unsigned int lTimeout = 0;
 
-		if (VCS_GetProtocolStackSettings(g_pKeyHandle, &lBaudrate, &lTimeout, p_pErrorCode) != 0)
+		if (VCS_GetProtocolStackSettings(g_pKeyHandle, &lBaudrate, &lTimeout, &p_pErrorCode) != 0)
 		{
-			if (VCS_SetProtocolStackSettings(g_pKeyHandle, g_baudrate, lTimeout, p_pErrorCode) != 0)
+			if (VCS_SetProtocolStackSettings(g_pKeyHandle, g_baudrate, lTimeout, &p_pErrorCode) != 0)
 			{
-				if (VCS_GetProtocolStackSettings(g_pKeyHandle, &lBaudrate, &lTimeout, p_pErrorCode) != 0)
+				if (VCS_GetProtocolStackSettings(g_pKeyHandle, &lBaudrate, &lTimeout, &p_pErrorCode) != 0)
 				{
 					if (g_baudrate == (int)lBaudrate)
 					{
@@ -237,6 +236,7 @@ int EposDriver::OpenDevice()
 	{
 		g_pKeyHandle = 0;
 	}
+	PrintSettings();
 	delete[]pDeviceName;
 	delete[]pProtocolStackName;
 	delete[]pInterfaceName;
